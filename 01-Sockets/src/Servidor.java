@@ -1,4 +1,3 @@
-
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.ServerSocket;
@@ -10,38 +9,52 @@ public class Servidor {
     
     ServerSocket srvSocket = null;
     Socket clientSocket = null;
+
     public void connecta(){
         try {
             srvSocket = new ServerSocket(PORT);
+            System.out.println("Servidor en marxa a " + HOST + ":" + PORT);
+            System.out.println("Esperant connexions a " + HOST + ":" + PORT);
+            
+            // Acceptem la connexió del client
             clientSocket = srvSocket.accept();
+            System.out.println("Client connectat: " + clientSocket.getInetAddress().toString());
         } catch (Exception e) {
+            e.printStackTrace();
         }
     }
+
     public void repDades(){
         try {
-            clientSocket = new Socket(HOST,PORT);
+            // ERROR CORREGIT: Ja tenim el clientSocket del mètode accept(). No n'hem de crear un de nou.
             BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-            String missatge = in.readLine();
-            System.out.println("Rebut: " + missatge);
+            
+            String missatge;
+            // Bucle per llegir totes les línies fins que el client tanqui la connexió (null)
+            while ((missatge = in.readLine()) != null) {
+                System.out.println("Rebut: " + missatge);
+            }
+            
             in.close();
         } catch (Exception e) {
+            e.printStackTrace();
         }
-        
     }
+
     public void tanca(){
         try {
-            clientSocket.close();
-            srvSocket.close();
+            if (clientSocket != null) clientSocket.close();
+            if (srvSocket != null) srvSocket.close();
+            System.out.println("Servidor tancat.");
         } catch (Exception e) {
+            e.printStackTrace();
         }
     }
+
     public static void main(String[] args) {
         Servidor srv = new Servidor();
         srv.connecta();
         srv.repDades();
         srv.tanca();
     }
-    
-    
-
 }
